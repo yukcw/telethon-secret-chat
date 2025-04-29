@@ -54,7 +54,10 @@ class SecretSQLiteSession(SecretMemorySession):
                   updated integer,
                   created integer,
                   mtproto integer,
-                  temp integer
+                  temp integer,
+                  rekeying integer,
+                  rekeying_exchange_id integer,
+                  UNIQUE(id, access_hash) ON CONFLICT REPLACE
                 )"""
             )
 
@@ -96,10 +99,10 @@ class SecretSQLiteSession(SecretMemorySession):
         row = (
             chat.id, chat.access_hash, chat.auth_key, 1 if chat.admin else 0, chat.user_id, chat.in_seq_no_x,
             chat.out_seq_no_x, chat.in_seq_no, chat.out_seq_no, chat.layer, chat.ttl, chat.ttr, chat.updated,
-            chat.created, chat.mtproto, temp)
+            chat.created, chat.mtproto, temp, chat.rekeying[0], chat.rekeying[1] if len(chat.rekeying) > 1 else 0)
         try:
             c.execute(
-                f'insert or replace into {TABLE_NAME} values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', row)
+                f'insert or replace into {TABLE_NAME} values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', row)
             self.save()
         finally:
             c.close()
@@ -112,7 +115,7 @@ class SecretSQLiteSession(SecretMemorySession):
             return SecretChat(id=row[0], access_hash=row[1], auth_key=row[2], admin=True if row[3] else False,
                               user_id=row[4], in_seq_no_x=row[5], out_seq_no_x=row[6], in_seq_no=row[7],
                               out_seq_no=row[8], layer=row[9], ttl=row[10], ttr=row[11], updated=row[12],
-                              created=row[13], mtproto=row[14], input_chat=input_chat, session=self, is_temp=True)
+                              created=row[13], mtproto=row[14], input_chat=input_chat, session=self, is_temp=True, rekeying=(row[16], row[17]))
 
     def get_secret_chat_by_id(self, id):
         row = self._execute(
@@ -123,7 +126,7 @@ class SecretSQLiteSession(SecretMemorySession):
             return SecretChat(id=row[0], access_hash=row[1], auth_key=row[2], admin=True if row[3] else False,
                               user_id=row[4], in_seq_no_x=row[5], out_seq_no_x=row[6], in_seq_no=row[7],
                               out_seq_no=row[8], layer=row[9], ttl=row[10], ttr=row[11], updated=row[12],
-                              created=row[13], mtproto=row[14], input_chat=input_chat, session=self)
+                              created=row[13], mtproto=row[14], input_chat=input_chat, session=self, rekeying=(row[16], row[17]))
 
     def remove_secret_chat_by_id(self, id, temp=False):
         print("removing chat with id", id, "and is ", temp)

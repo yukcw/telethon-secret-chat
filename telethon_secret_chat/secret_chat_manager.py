@@ -41,6 +41,7 @@ class SecretChatManager(SecretChatMethods):
             self.session = session
         self.client.add_event_handler(self._secret_chat_event_loop)
         self._log = client._log["secret_chat"]
+        self._temp_rekeyed_secret_chats = {}
 
     def add_secret_event_handler(self, event_type=SECRET_TYPES.decrypt, func: Callable = None):
         if event_type != SECRET_TYPES.decrypt and event_type != SECRET_TYPES.accept or not func:
