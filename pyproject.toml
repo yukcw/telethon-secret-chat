@@ -1,0 +1,37 @@
+[project]
+name = "telethon-secret-chat"
+dynamic = ["version"]
+description = "Telethon secret chat plugin"
+readme = "README.md"
+requires-python = ">=3.5"
+dependencies = [
+    "boto3>=1.17.112",
+    "telethon",
+]
+authors = [
+    {name = "painor", email = "topcode.softwares@gmail.com"},
+    {name = "yukcw", email = "yukccw@gmail.com"}
+]
+license = {text = "MIT"}
+keywords = ["Telegram", "Telethon", "SecretChats", "Plugin"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Topic :: Communications :: Chat",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+]
+
+[project.urls]
+Homepage = "https://github.com/painor/telethon-secret-chat"
+Download = "https://github.com/painor/telethon-secret-chat/releases"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "src/telethon_secret_chat/version.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/telethon_secret_chat"]
