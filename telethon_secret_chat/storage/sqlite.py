@@ -107,6 +107,23 @@ class SecretSQLiteSession(SecretMemorySession):
         finally:
             c.close()
 
+    def list_secret_chats(self, temp=False):
+        c = self._conn.cursor()
+        try:
+            c.execute(f"select * from {TABLE_NAME} where temp=?", (1 if temp else 0,))
+            rows = c.fetchall()
+        finally:
+            c.close()
+        print('rows', rows)
+        chats = []
+        for row in rows:
+            input_chat = InputEncryptedChat(chat_id=row[0], access_hash=row[1])
+            chats.append(SecretChat(id=row[0], access_hash=row[1], auth_key=row[2], admin=True if row[3] else False,
+                                    user_id=row[4], in_seq_no_x=row[5], out_seq_no_x=row[6], in_seq_no=row[7],
+                                    out_seq_no=row[8], layer=row[9], ttl=row[10], ttr=row[11], updated=row[12],
+                                    created=row[13], mtproto=row[14], input_chat=input_chat, session=self, is_temp=True, rekeying=(row[16], row[17])))
+        return chats
+
     def get_temp_secret_chat_by_id(self, id):
         row = self._execute(
             f"select * from {TABLE_NAME} where temp=1 and id = ? or user_id=?", id, id)
